@@ -1,16 +1,19 @@
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String inputString = scanner.nextLine();
-        System.out.println(calc(inputString));
+//        Scanner scanner = new Scanner(System.in);
+//        String inputString = scanner.nextLine();
+//        System.out.println(calc(inputString));
+        UnitTest();
     }
 
     enum RomanNumeral {
@@ -140,5 +143,30 @@ public class Main {
             default:
                 throw new IllegalStateException("Unexpected value: " + calcType);
         }
+    }
+
+    public static void UnitTest(){
+        String[] arr = {"1+1","10 / 3","X*VIII","1+V","I-V"};
+        for (int i = 0; i < arr.length; i++) {
+            try{
+                StringBuilder sb = new StringBuilder();
+                sb.append("Input:");
+                sb.append(arr[i]);
+                sb.append(";Output:");
+                sb.append(doSomething(Main::calc, arr[i]));
+                System.out.println(sb.toString());
+            } catch (Exception ex){
+                StringBuilder sb = new StringBuilder();
+                sb.append("Input:");
+                sb.append(arr[i]);
+                sb.append(";Exception:");
+                sb.append(ex.getMessage());
+                System.out.println(sb.toString());
+            }
+        }
+    }
+    public static String doSomething(Function<String, String> func,
+                                     String input) {
+        return func.apply(input);
     }
 }
