@@ -8,16 +8,17 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String inputString = scanner.nextLine();
-        System.out.println(calc(inputString));
+//        Scanner scanner = new Scanner(System.in);
+//        String inputString = scanner.nextLine();
+//        System.out.println(calc(inputString));
+        UnitTest();
     }
 
     enum RomanNumeral {
         I(1), IV(4), V(5), IX(9), X(10),
         XL(40), L(50), XC(90), C(100);
 
-        private int value;
+        private final int value;
 
         RomanNumeral(int value) {
             this.value = value;
@@ -42,7 +43,7 @@ public class Main {
 
         int i = 0;
 
-        while ((romanNumeral.length() > 0) && (i < romanNumerals.size())) {
+        while ((!romanNumeral.isEmpty()) && (i < romanNumerals.size())) {
             RomanNumeral symbol = romanNumerals.get(i);
             if (romanNumeral.startsWith(symbol.name())) {
                 result += symbol.getValue();
@@ -52,7 +53,7 @@ public class Main {
             }
         }
 
-        if (romanNumeral.length() > 0) {
+        if (!romanNumeral.isEmpty()) {
             throw new IllegalArgumentException(input + " cannot be converted to a Roman Numeral");
         }
 
@@ -85,9 +86,9 @@ public class Main {
     public static String calc(String input) {
 
         String regexpA = "^([0-9]{1,2})\\s?([*+\\-/])\\s?([0-9]{1,2})$";
-        Pattern inputPatternA = Pattern.compile (regexpA);
+        Pattern inputPatternA = Pattern.compile(regexpA);
         String regexpR = "^([IVX]{1,4})\\s?([*+\\-/])\\s?([IVX]{1,4})$";
-        Pattern inputPatternR = Pattern.compile (regexpR);
+        Pattern inputPatternR = Pattern.compile(regexpR);
         Matcher matcherA = inputPatternA.matcher(input);
         Matcher matcherR = inputPatternR.matcher(input);
         String calcType;
@@ -113,32 +114,33 @@ public class Main {
         if (operand1<1 || operand1>10 || operand2<1 || operand2>10){
             throw new RuntimeException("Числа должны быть от 1 до 10");
         }
-        switch (operator){
-            case "*":
-                result = operand1 * operand2;
-                break;
-            case "+":
-                result = operand1 + operand2;
-                break;
-            case "-":
-                result = operand1 - operand2;
-                break;
-            case "/":
-                result = operand1 / operand2;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + operator);
-        }
-        switch (calcType){
-            case "roman":
-                if(result<1){
+        result = switch (operator) {
+            case "*" -> operand1 * operand2;
+            case "+" -> operand1 + operand2;
+            case "-" -> operand1 - operand2;
+            case "/" -> operand1 / operand2;
+            default -> throw new IllegalStateException("Unexpected value: " + operator);
+        };
+        return switch (calcType) {
+            case "roman" -> {
+                if (result < 1) {
                     throw new RuntimeException("Результат нельзя представить в формате римских цифр");
                 }
-                return arabicToRoman(result);
-            case "arabic":
-                return Integer.toString(result);
-            default:
-                throw new IllegalStateException("Unexpected value: " + calcType);
+                yield arabicToRoman(result);
+            }
+            case "arabic" -> Integer.toString(result);
+            default -> throw new IllegalStateException("Unexpected value: " + calcType);
+        };
+    }
+
+    public static void UnitTest(){
+        String[] arr = {"1+1","10 / 3","X*VIII","1+V","I-V"};
+        for (String s : arr) {
+            try {
+                System.out.println("Input:" + s + ";Output:" + calc(s));
+            } catch (Exception ex) {
+                System.out.println("Input:" + s + ";Exception:" + ex.getMessage());
+            }
         }
     }
 }
