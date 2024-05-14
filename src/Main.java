@@ -1,9 +1,7 @@
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -20,7 +18,7 @@ public class Main {
         I(1), IV(4), V(5), IX(9), X(10),
         XL(40), L(50), XC(90), C(100);
 
-        private int value;
+        private final int value;
 
         RomanNumeral(int value) {
             this.value = value;
@@ -45,7 +43,7 @@ public class Main {
 
         int i = 0;
 
-        while ((romanNumeral.length() > 0) && (i < romanNumerals.size())) {
+        while ((!romanNumeral.isEmpty()) && (i < romanNumerals.size())) {
             RomanNumeral symbol = romanNumerals.get(i);
             if (romanNumeral.startsWith(symbol.name())) {
                 result += symbol.getValue();
@@ -55,7 +53,7 @@ public class Main {
             }
         }
 
-        if (romanNumeral.length() > 0) {
+        if (!romanNumeral.isEmpty()) {
             throw new IllegalArgumentException(input + " cannot be converted to a Roman Numeral");
         }
 
@@ -88,9 +86,9 @@ public class Main {
     public static String calc(String input) {
 
         String regexpA = "^([0-9]{1,2})\\s?([*+\\-/])\\s?([0-9]{1,2})$";
-        Pattern inputPatternA = Pattern.compile (regexpA);
+        Pattern inputPatternA = Pattern.compile(regexpA);
         String regexpR = "^([IVX]{1,4})\\s?([*+\\-/])\\s?([IVX]{1,4})$";
-        Pattern inputPatternR = Pattern.compile (regexpR);
+        Pattern inputPatternR = Pattern.compile(regexpR);
         Matcher matcherA = inputPatternA.matcher(input);
         Matcher matcherR = inputPatternR.matcher(input);
         String calcType;
@@ -116,57 +114,33 @@ public class Main {
         if (operand1<1 || operand1>10 || operand2<1 || operand2>10){
             throw new RuntimeException("Числа должны быть от 1 до 10");
         }
-        switch (operator){
-            case "*":
-                result = operand1 * operand2;
-                break;
-            case "+":
-                result = operand1 + operand2;
-                break;
-            case "-":
-                result = operand1 - operand2;
-                break;
-            case "/":
-                result = operand1 / operand2;
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + operator);
-        }
-        switch (calcType){
-            case "roman":
-                if(result<1){
+        result = switch (operator) {
+            case "*" -> operand1 * operand2;
+            case "+" -> operand1 + operand2;
+            case "-" -> operand1 - operand2;
+            case "/" -> operand1 / operand2;
+            default -> throw new IllegalStateException("Unexpected value: " + operator);
+        };
+        return switch (calcType) {
+            case "roman" -> {
+                if (result < 1) {
                     throw new RuntimeException("Результат нельзя представить в формате римских цифр");
                 }
-                return arabicToRoman(result);
-            case "arabic":
-                return Integer.toString(result);
-            default:
-                throw new IllegalStateException("Unexpected value: " + calcType);
-        }
+                yield arabicToRoman(result);
+            }
+            case "arabic" -> Integer.toString(result);
+            default -> throw new IllegalStateException("Unexpected value: " + calcType);
+        };
     }
 
     public static void UnitTest(){
         String[] arr = {"1+1","10 / 3","X*VIII","1+V","I-V"};
-        for (int i = 0; i < arr.length; i++) {
-            try{
-                StringBuilder sb = new StringBuilder();
-                sb.append("Input:");
-                sb.append(arr[i]);
-                sb.append(";Output:");
-                sb.append(doSomething(Main::calc, arr[i]));
-                System.out.println(sb.toString());
-            } catch (Exception ex){
-                StringBuilder sb = new StringBuilder();
-                sb.append("Input:");
-                sb.append(arr[i]);
-                sb.append(";Exception:");
-                sb.append(ex.getMessage());
-                System.out.println(sb.toString());
+        for (String s : arr) {
+            try {
+                System.out.println("Input:" + s + ";Output:" + calc(s));
+            } catch (Exception ex) {
+                System.out.println("Input:" + s + ";Exception:" + ex.getMessage());
             }
         }
-    }
-    public static String doSomething(Function<String, String> func,
-                                     String input) {
-        return func.apply(input);
     }
 }
